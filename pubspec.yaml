@@ -26,6 +26,7 @@ dependencies:
   audioplayers: 0.13.2
   http:
   google_fonts:
+  cached_network_image:
 
 dev_dependencies:
   flutter_test:

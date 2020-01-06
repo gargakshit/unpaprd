@@ -117,7 +117,7 @@ class _PlayerPageState extends State<PlayerPage> {
                   padding: const EdgeInsets.symmetric(horizontal: 12.0),
                   child: Column(
                     children: <Widget>[
-                      SizedBox(height: 52.0),
+                      SizedBox(height: MediaQuery.of(context).padding.top + 4),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: <Widget>[
