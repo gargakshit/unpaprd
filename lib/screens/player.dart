@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'dart:async';
 
 import '../api/data.dart';
+
+var blueColor = Color(0xFF090e42);
+var pinkColor = Color(0xFFff6b80);
 
 class PlayerPage extends StatefulWidget {
   final AudioData audioData;
@@ -91,150 +95,233 @@ class _PlayerPageState extends State<PlayerPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Container(
-            width: MediaQuery.of(context).size.width,
-            height: 150,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Color(0xff5151d5),
-                  Color(0xff0a3d7c),
-                ],
-              ),
-            ),
-            child: Padding(
-              padding: EdgeInsets.all(20.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: <Widget>[
-                  Text(
-                    "Player",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 36.0,
-                      fontWeight: FontWeight.w800,
-                    ),
+            height: 500.0,
+            child: Stack(
+              children: <Widget>[
+                Container(
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                        image: NetworkImage(widget.audioData.img),
+                        fit: BoxFit.cover),
                   ),
-                ],
-              ),
-            ),
-          ),
-          Expanded(
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  Text(
-                    widget.audioData.name,
-                    style: TextStyle(
-                      fontSize: 24.0,
-                      fontWeight: FontWeight.w600,
-                    ),
+                ),
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                        colors: [blueColor.withOpacity(0.4), blueColor],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter),
                   ),
-                  Padding(
-                    padding: EdgeInsets.only(
-                      top: 10.0,
-                    ),
-                  ),
-                  Text(
-                    "Chapter $chap",
-                    style: TextStyle(
-                      fontSize: 16.0,
-                      fontWeight: FontWeight.w300,
-                    ),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                  child: Column(
                     children: <Widget>[
-                      IconButton(
-                        icon: Icon(Icons.rotate_left),
-                        onPressed: () {
-                          audioPlayer.seek(
-                            Duration(
-                              milliseconds:
-                                  (pos >= 5000 ? pos - 5000 : pos).toInt(),
+                      SizedBox(height: 52.0),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          GestureDetector(
+                            onTap: () => Navigator.of(context).pop(),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(50.0)),
+                              child: Icon(
+                                Icons.arrow_drop_down,
+                                color: Colors.white,
+                              ),
                             ),
-                          );
-                        },
+                          ),
+                          Column(
+                            children: <Widget>[
+                              Text(
+                                'PLAYER',
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.6),
+                                  fontSize: 12.0,
+                                ),
+                              ),
+                              Text(
+                                'The Unpaprd.',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12.0,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Icon(
+                            Icons.playlist_add,
+                            color: Colors.white,
+                          )
+                        ],
                       ),
-                      IconButton(
-                        icon: Icon(Icons.arrow_left),
-                        onPressed: () {
-                          setState(() {
-                            chap = (chap) == widget.audioData.audio.length
-                                ? 1
-                                : chap - 1;
-                          });
-
-                          audioPlayer.stop();
-
-                          play(widget.audioData.audio[chap - 1], chap);
-                        },
+                      Spacer(),
+                      Text(
+                        widget.audioData.name,
+                        style: GoogleFonts.montserrat(
+                          textStyle: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 24.0,
+                          ),
+                        ),
                       ),
-                      IconButton(
-                        icon: Icon(isPlaying ? Icons.pause : Icons.play_arrow),
-                        onPressed: () {
-                          if (isPlaying) {
-                            audioPlayer.pause();
-                          } else {
-                            audioPlayer.resume();
-                          }
-                          setState(() {
-                            isPlaying = !isPlaying;
-                          });
-                        },
+                      SizedBox(
+                        height: 6.0,
                       ),
-                      IconButton(
-                        icon: Icon(Icons.arrow_right),
-                        onPressed: () {
-                          setState(() {
-                            chap = (chap) == widget.audioData.audio.length
-                                ? 1
-                                : chap + 1;
-                          });
-
-                          audioPlayer.stop();
-
-                          play(widget.audioData.audio[chap - 1], chap);
-                        },
+                      Text(
+                        "Chapter $chap",
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.6),
+                          fontSize: 16.0,
+                        ),
                       ),
-                      IconButton(
-                        icon: Icon(Icons.rotate_right),
-                        onPressed: () {
-                          audioPlayer.seek(
-                            Duration(
-                              milliseconds: (pos + 5000).toInt(),
-                            ),
-                          );
-                        },
-                      ),
+                      SizedBox(height: 16.0),
                     ],
                   ),
-                  Slider(
-                    value: (pos != null &&
-                            duration != null &&
-                            pos > 0 &&
-                            pos < duration)
-                        ? pos / duration
-                        : 0,
-                    onChanged: (v) {
-                      double position = v * duration;
-                      audioPlayer
-                          .seek(Duration(milliseconds: position.round()));
-                    },
-                    activeColor: Color(0xff5151d5),
-                    inactiveColor: Color(0x2f0a3d7c),
-                  ),
-                  Text(
-                    pos != 0
-                        ? "${p.inHours}:${p.inMinutes.remainder(60)}:${(p.inSeconds.remainder(60))} / ${d.inHours}:${d.inMinutes.remainder(60)}:${(d.inSeconds.remainder(60))}"
-                        : "0:0:0 / 0:0:0",
-                  ),
-                ],
-              ),
+                )
+              ],
             ),
           ),
+          SizedBox(height: 42.0),
+          Slider(
+            value:
+                (pos != null && duration != null && pos > 0 && pos < duration)
+                    ? pos / duration
+                    : 0,
+            onChanged: (v) {
+              double position = v * duration;
+              audioPlayer.seek(Duration(milliseconds: position.round()));
+            },
+            activeColor: pinkColor,
+          ),
+          (d != null && p != null)
+              ? Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Text(
+                        "${p.inHours}:${p.inMinutes.remainder(60)}:${(p.inSeconds.remainder(60))}",
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.7),
+                        ),
+                      ),
+                      Text(
+                        "${d.inHours}:${d.inMinutes.remainder(60)}:${(d.inSeconds.remainder(60))}",
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.7),
+                        ),
+                      )
+                    ],
+                  ),
+                )
+              : Center(
+                  child: CircularProgressIndicator(),
+                ),
+          Spacer(),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              IconButton(
+                icon: Icon(
+                  Icons.fast_rewind,
+                  size: 32.0,
+                ),
+                onPressed: () {
+                  audioPlayer.seek(
+                    Duration(
+                      milliseconds: (pos >= 5000 ? pos - 5000 : pos).toInt(),
+                    ),
+                  );
+                },
+              ),
+              SizedBox(width: 32.0),
+              GestureDetector(
+                onTap: () {
+                  if (isPlaying) {
+                    audioPlayer.pause();
+                  } else {
+                    audioPlayer.resume();
+                  }
+                  setState(() {
+                    isPlaying = !isPlaying;
+                  });
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: pinkColor,
+                    borderRadius: BorderRadius.circular(50.0),
+                  ),
+                  child: Padding(
+                    padding: EdgeInsets.all(8),
+                    child: Icon(
+                      isPlaying ? Icons.pause : Icons.play_arrow,
+                      size: 38.0,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(width: 32.0),
+              IconButton(
+                icon: Icon(
+                  Icons.fast_forward,
+                  size: 32.0,
+                ),
+                onPressed: () {
+                  audioPlayer.seek(
+                    Duration(
+                      milliseconds: (pos + 5000).toInt(),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+          Spacer(),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: <Widget>[
+              IconButton(
+                icon: Icon(
+                  Icons.keyboard_arrow_left,
+                  size: 32.0,
+                ),
+                onPressed: chap == 1
+                    ? null
+                    : () {
+                        setState(() {
+                          chap--;
+                        });
+
+                        audioPlayer.stop();
+
+                        play(widget.audioData.audio[chap - 1], chap);
+                      },
+              ),
+              IconButton(
+                icon: Icon(
+                  Icons.keyboard_arrow_right,
+                  size: 32.0,
+                ),
+                onPressed: chap == widget.audioData.audio.length
+                    ? null
+                    : () {
+                        setState(() {
+                          chap++;
+                        });
+
+                        audioPlayer.stop();
+
+                        play(widget.audioData.audio[chap - 1], chap);
+                      },
+              ),
+            ],
+          ),
+          SizedBox(height: 58.0),
         ],
       ),
     );

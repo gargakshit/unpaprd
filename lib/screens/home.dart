@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:unpaprd/screens/player.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../api/data.dart';
 
@@ -21,87 +22,174 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        children: <Widget>[
-          Container(
-            width: MediaQuery.of(context).size.width,
-            height: 150,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Color(0xff5151d5),
-                  Color(0xff0a3d7c),
-                ],
-              ),
-            ),
-            child: Padding(
-              padding: EdgeInsets.all(20.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: <Widget>[
-                  Text(
-                    "Audiobooks",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 36.0,
-                      fontWeight: FontWeight.w800,
-                    ),
+      body: SafeArea(
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.0),
+          child: ListView(
+            children: <Widget>[
+              SizedBox(height: 32.0),
+              CustomTextField(),
+              SizedBox(height: 32.0),
+              Text(
+                'Audiobooks',
+                style: GoogleFonts.montserrat(
+                  textStyle: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 32.0,
                   ),
-                ],
+                ),
               ),
+              SizedBox(
+                height: 16.0,
+              ),
+              FutureBuilder<List<AudioData>>(
+                future: audioData,
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    return ListView(
+                      shrinkWrap: true,
+                      children: List.generate(
+                        snapshot.data.length,
+                        (i) {
+                          return SongItem(
+                            audioData: snapshot.data[i],
+                          );
+                        },
+                      ),
+                    );
+                  } else if (snapshot.hasError) {
+                    return Text("Error fetching data");
+                  }
+                  return CircularProgressIndicator();
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class CustomTextField extends StatelessWidget {
+  const CustomTextField({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Colors.grey.withOpacity(0.16),
+      child: Row(
+        children: <Widget>[
+          SizedBox(
+            width: 8.0,
+          ),
+          Icon(
+            Icons.search,
+            color: Colors.white,
+          ),
+          SizedBox(
+            width: 8.0,
+          ),
+          Expanded(
+            child: TextField(
+              decoration: InputDecoration(
+                  hintText: 'Search for audiobooks...',
+                  hintStyle: TextStyle(color: Colors.grey),
+                  border: InputBorder.none),
             ),
           ),
-          FutureBuilder<List<AudioData>>(
-            future: audioData,
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                return ListView(
-                  shrinkWrap: true,
-                  children: List.generate(
-                    snapshot.data.length,
-                    (i) {
-                      return Padding(
-                        padding: EdgeInsets.only(left: 20.0, right: 20.0),
-                        child: GestureDetector(
-                          onTap: () => Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (ctx) => PlayerPage(
-                                  audioData: snapshot.data[i],
-                                ),
-                              )),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Text(
-                                snapshot.data[i].name,
-                                style: TextStyle(
-                                  fontSize: 18.0,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                              Text(
-                                "${snapshot.data[i].audio.length} chapters",
-                                style: TextStyle(
-                                  fontSize: 16.0,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              )
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                );
-              } else if (snapshot.hasError) {
-                return Text("Error fetching data");
-              }
-              return CircularProgressIndicator();
-            },
+          SizedBox(
+            width: 8.0,
+          ),
+          Icon(
+            Icons.mic,
+            color: Colors.white,
+          ),
+          SizedBox(
+            width: 8.0,
           ),
         ],
+      ),
+    );
+  }
+}
+
+class SongItem extends StatelessWidget {
+  final AudioData audioData;
+
+  SongItem({this.audioData});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PlayerPage(
+              audioData: audioData,
+            ),
+          ),
+        );
+      },
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 26.0),
+        child: Row(
+          children: <Widget>[
+            Stack(
+              children: <Widget>[
+                Container(
+                  height: 80.0,
+                  width: 80.0,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8.0),
+                    child: Image.network(
+                      audioData.img,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+                Container(
+                  height: 80.0,
+                  width: 80.0,
+                  child: Icon(
+                    Icons.play_circle_filled,
+                    color: Colors.white.withOpacity(0.7),
+                    size: 28.0,
+                  ),
+                )
+              ],
+            ),
+            SizedBox(width: 16.0),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  audioData.name,
+                  style: GoogleFonts.montserrat(
+                    textStyle: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18.0,
+                    ),
+                  ),
+                ),
+                SizedBox(height: 8.0),
+                Text(
+                  "${audioData.audio.length + 1} chapters",
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.5),
+                    fontSize: 14.0,
+                  ),
+                ),
+              ],
+            ),
+            Spacer(),
+          ],
+        ),
       ),
     );
   }

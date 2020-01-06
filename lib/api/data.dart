@@ -6,14 +6,16 @@ class AudioData {
   final String name;
   final String provider;
   final List<String> audio;
+  final String img;
 
-  AudioData({this.name, this.provider, this.audio});
+  AudioData({this.name, this.provider, this.audio, this.img});
 
   factory AudioData.fromJSON(Map<String, dynamic> json) {
     return AudioData(
       name: json['name'],
       provider: json['provider'],
       audio: List<String>.from(json['audio']),
+      img: json['img'],
     );
   }
 }
