@@ -24,52 +24,63 @@ class _ExplorePageState extends State<ExplorePage> {
     feed = fetchFeed(limit: 10);
   }
 
+  Future<void> refresh() async {
+    setState(() {
+      feed = fetchFeed(limit: 10);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 16.0),
-          child: ListView(
-            children: <Widget>[
-              SizedBox(height: 16.0),
-              Text(
-                "Explore",
-                style: GoogleFonts.playfairDisplay(
-                  textStyle: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w900,
-                    fontSize: 32.0,
-                  ),
-                ),
-              ),
-              SizedBox(
-                height: 16.0,
-              ),
-              FutureBuilder<AudiobookShortList>(
-                future: feed,
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    return Column(
-                      children: List.generate(
-                        snapshot.data.books.length,
-                        (i) {
-                          return BookItem(
-                            audioData: snapshot.data.books[i],
-                            navigate: widget.navigate,
-                          );
-                        },
+          child: Center(
+            child: RefreshIndicator(
+              onRefresh: refresh,
+              child: ListView(
+                children: <Widget>[
+                  SizedBox(height: 16.0),
+                  Text(
+                    "Explore",
+                    style: GoogleFonts.playfairDisplay(
+                      textStyle: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w900,
+                        fontSize: 32.0,
                       ),
-                    );
-                  } else if (snapshot.hasError) {
-                    return Text("Error fetching data");
-                  }
-                  return Center(
-                    child: CircularProgressIndicator(),
-                  );
-                },
+                    ),
+                  ),
+                  SizedBox(
+                    height: 16.0,
+                  ),
+                  FutureBuilder<AudiobookShortList>(
+                    future: feed,
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        return Column(
+                          children: List.generate(
+                            snapshot.data.books.length,
+                            (i) {
+                              return BookItem(
+                                audioData: snapshot.data.books[i],
+                                navigate: widget.navigate,
+                              );
+                            },
+                          ),
+                        );
+                      } else if (snapshot.hasError) {
+                        return Text("Error fetching data");
+                      }
+                      return Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    },
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),
