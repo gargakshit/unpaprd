@@ -13,12 +13,10 @@ dependencies:
   audioplayers: 0.13.2
   http:
   google_fonts:
-  cached_network_image:
   transparent_image:
   flutter_advanced_networkimage:
   mobx:
   flutter_mobx:
-  flare_flutter:
   provider:
 
 dev_dependencies:
@@ -27,8 +25,14 @@ dev_dependencies:
 
   build_runner:
   mobx_codegen:
+  flutter_launcher_icons:
 
 flutter:
   uses-material-design: true
   assets:
     - assets/
+
+flutter_icons:
+  image_path: assets/icon.png
+  android: true
+  ios: true
