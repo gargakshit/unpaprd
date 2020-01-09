@@ -18,6 +18,7 @@ dependencies:
   mobx:
   flutter_mobx:
   provider:
+  connectivity:
 
 dev_dependencies:
   flutter_test:

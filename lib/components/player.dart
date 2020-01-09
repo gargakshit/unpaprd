@@ -244,7 +244,8 @@ class _PlayerCompomemtState extends State<PlayerCompomemt> {
                     height: 16,
                   ),
                   Expanded(
-                    child: Container(
+                    child: AnimatedContainer(
+                      duration: Duration(milliseconds: 200),
                       padding: EdgeInsets.only(
                         left: 16,
                         right: 16,
@@ -346,13 +347,19 @@ class _PlayerCompomemtState extends State<PlayerCompomemt> {
                                         ),
                                       ),
                                     ),
-                                    IconButton(
-                                      icon: Icon(isPlaying
-                                          ? Icons.pause
-                                          : Icons.play_arrow),
-                                      onPressed: () => isPlaying
-                                          ? audioPlayer.pause()
-                                          : audioPlayer.resume(),
+                                    AnimatedCrossFade(
+                                      crossFadeState: isPlaying
+                                          ? CrossFadeState.showSecond
+                                          : CrossFadeState.showFirst,
+                                      duration: Duration(milliseconds: 150),
+                                      firstChild: IconButton(
+                                        icon: Icon(Icons.play_arrow),
+                                        onPressed: () => audioPlayer.resume(),
+                                      ),
+                                      secondChild: IconButton(
+                                        icon: Icon(Icons.pause),
+                                        onPressed: () => audioPlayer.pause(),
+                                      ),
                                     ),
                                     IconButton(
                                       icon: Icon(Icons.rotate_right),
