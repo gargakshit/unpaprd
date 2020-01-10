@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:unpaprd/api/feed.dart';
 import 'package:unpaprd/components/bookItem.dart';
 import 'package:unpaprd/models/feed.dart';
-// import 'package:unpaprd/screens/player.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class ExplorePage extends StatefulWidget {
@@ -71,7 +70,15 @@ class _ExplorePageState extends State<ExplorePage> {
                           ),
                         );
                       } else if (snapshot.hasError) {
-                        return Text("Error fetching data");
+                        return Center(
+                          child: Text(
+                            "Error fetching data, please refresh",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16.0,
+                            ),
+                          ),
+                        );
                       }
                       return Center(
                         child: CircularProgressIndicator(),

@@ -32,37 +32,37 @@ class MyApp extends StatelessWidget {
           future: Connectivity().checkConnectivity(),
           builder: (ctx, snapshot) {
             if (snapshot.hasData) {
-              if (snapshot.data == ConnectivityResult.mobile ||
-                  snapshot.data == ConnectivityResult.wifi) {
-                return HomePage();
+              if (snapshot.data != ConnectivityResult.mobile &&
+                  snapshot.data != ConnectivityResult.wifi) {
+                return Scaffold(
+                  body: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[
+                        Text(
+                          "No Internet Connection",
+                          style: GoogleFonts.playfairDisplay(
+                            textStyle: TextStyle(
+                              color: Colors.white,
+                              fontSize: 32.0,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                        ),
+                        Text("Restart the app to re-check",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20.0,
+                            )),
+                      ],
+                    ),
+                  ),
+                );
               }
             }
 
-            return Scaffold(
-              body: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                    Text(
-                      "No Internet Connection",
-                      style: GoogleFonts.playfairDisplay(
-                        textStyle: TextStyle(
-                          color: Colors.white,
-                          fontSize: 32.0,
-                          fontWeight: FontWeight.w900,
-                        ),
-                      ),
-                    ),
-                    Text("Restart the app to re-check",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20.0,
-                        )),
-                  ],
-                ),
-              ),
-            );
+            return HomePage();
           },
         ),
       ),

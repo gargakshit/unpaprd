@@ -19,6 +19,7 @@ dependencies:
   flutter_mobx:
   provider:
   connectivity:
+  shared_preferences:
 
 dev_dependencies:
   flutter_test:

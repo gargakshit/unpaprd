@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_advanced_networkimage/provider.dart';
 import 'package:flutter_advanced_networkimage/transition.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:unpaprd/models/audio.dart';
 import 'package:unpaprd/models/audiobook_full.dart';
 import 'package:http/http.dart';
@@ -25,12 +26,15 @@ class _PlayerCompomemtState extends State<PlayerCompomemt> {
   int currentSection = 0;
   Duration duration;
   Duration position;
+  bool firstLoad = true;
 
   StreamSubscription durationSubscription;
   StreamSubscription positionSubscription;
   StreamSubscription completionSubscription;
   StreamSubscription stateSubscription;
   StreamSubscription errorSubscription;
+
+  SharedPreferences preferences;
 
   @override
   void initState() {
@@ -74,9 +78,19 @@ class _PlayerCompomemtState extends State<PlayerCompomemt> {
       setState(() {
         position = p;
       });
+
+      seekToSaved();
+
+      updateSharedPrefs();
+
+      if (firstLoad) {
+        setState(() {
+          firstLoad = false;
+        });
+      }
     });
 
-    play();
+    initPrefs();
   }
 
   play() async {
@@ -88,6 +102,47 @@ class _PlayerCompomemtState extends State<PlayerCompomemt> {
     );
 
     await audioPlayer.play(urlReq.body.replaceFirst("http", "https"));
+  }
+
+  seekToSaved() {
+    if (firstLoad) {
+      List<String> data = preferences.getStringList(widget.book.id);
+
+      if (data != null) {
+        audioPlayer.seek(
+          Duration(
+            seconds: int.parse(data[1]),
+            minutes: int.parse(data[2]),
+            hours: int.parse(data[3]),
+          ),
+        );
+      }
+    }
+  }
+
+  initPrefs() async {
+    preferences = await SharedPreferences.getInstance();
+
+    List<String> data = preferences.getStringList(widget.book.id);
+
+    if (data != null) {
+      setState(() {
+        currentSection = int.parse(data[0]);
+      });
+    }
+
+    play();
+  }
+
+  updateSharedPrefs() async {
+    if (duration != null && position != null) {
+      await preferences.setStringList(widget.book.id, [
+        currentSection.toString(),
+        position.inSeconds.toString(),
+        position.inMinutes.toString(),
+        position.inHours.toString(),
+      ]);
+    }
   }
 
   @override
