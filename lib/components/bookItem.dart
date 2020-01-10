@@ -100,9 +100,15 @@ class BookItem extends StatelessWidget {
                     ),
                   ],
                 ),
-                SizedBox(height: 8.0),
                 Text(
-                  "${audioData.numSections} chapters - ${audioData.language}",
+                  "${audioData.numSections} sections - ${audioData.language}",
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.5),
+                    fontSize: 14.0,
+                  ),
+                ),
+                Text(
+                  "Length - ${audioData.totalTime}",
                   style: TextStyle(
                     color: Colors.white.withOpacity(0.5),
                     fontSize: 14.0,
