@@ -250,7 +250,7 @@ class _PlayerCompomemtState extends State<PlayerCompomemt> {
                                 child: Container(),
                               ),
                               Text(
-                                "${widget.book.numSections} chapters",
+                                "${widget.book.numSections} sections",
                                 maxLines: 3,
                                 overflow: TextOverflow.ellipsis,
                                 textAlign: TextAlign.right,
@@ -382,9 +382,6 @@ class _PlayerCompomemtState extends State<PlayerCompomemt> {
                               ),
                             ),
                           ),
-                    Expanded(
-                      child: Container(),
-                    ),
                     (duration != null && position != null)
                         ? Container(
                             child: Column(
@@ -522,9 +519,6 @@ class _PlayerCompomemtState extends State<PlayerCompomemt> {
                           ),
                     SizedBox(
                       height: orientation == Orientation.landscape ? 0 : 16,
-                    ),
-                    Expanded(
-                      child: Container(),
                     ),
                   ],
                 ),
