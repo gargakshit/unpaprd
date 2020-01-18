@@ -14,12 +14,14 @@ dependencies:
   http:
   google_fonts:
   transparent_image:
-  flutter_advanced_networkimage:
+  cached_network_image:
   mobx:
   flutter_mobx:
   provider:
   connectivity:
   shared_preferences:
+  photo_view:
+  flutter_plugin_pdf_viewer:
 
 dev_dependencies:
   flutter_test:

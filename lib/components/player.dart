@@ -1,8 +1,7 @@
 import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_advanced_networkimage/provider.dart';
-import 'package:flutter_advanced_networkimage/transition.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:unpaprd/models/audio.dart';
@@ -158,42 +157,19 @@ class _PlayerCompomemtState extends State<PlayerCompomemt> {
                       children: <Widget>[
                         ClipRRect(
                           borderRadius: BorderRadius.circular(10.0),
-                          child: TransitionToImage(
+                          child: CachedNetworkImage(
+                            imageUrl:
+                                "https://unpaprdapi.gargakshit.now.sh/api/cover?name=${widget.book.title}",
                             height: orientation == Orientation.landscape
                                 ? 140
                                 : 200,
                             width: orientation == Orientation.landscape
                                 ? 105
                                 : 130,
-                            image: AdvancedNetworkImage(
-                              "https://unpaprdapi.gargakshit.now.sh/api/cover?name=${widget.book.title}",
-                              useDiskCache: true,
-                              loadFailedCallback: () {
-                                print("loading failed...");
-                              },
-                              cacheRule: CacheRule(
-                                maxAge: Duration(days: 30),
-                              ),
-                            ),
-                            placeholder: Container(
-                              width: 70.0,
-                              height: 70.0,
-                              child: Center(
-                                child: Icon(Icons.close),
-                              ),
-                            ),
-                            loadingWidgetBuilder: (_, double progress, __) =>
-                                Container(
-                              width: 70.0,
-                              height: 70.0,
-                              child: Center(
-                                child: progress == 0
-                                    ? CircularProgressIndicator()
-                                    : CircularProgressIndicator(
-                                        value: progress,
-                                      ),
-                              ),
-                            ),
+                            placeholder: (context, url) =>
+                                CircularProgressIndicator(),
+                            errorWidget: (context, url, error) =>
+                                Icon(Icons.error),
                             fit: BoxFit.cover,
                           ),
                         ),

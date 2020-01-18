@@ -1,9 +1,9 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_advanced_networkimage/provider.dart';
-import 'package:flutter_advanced_networkimage/transition.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:unpaprd/models/audiobook_short.dart';
+import 'package:unpaprd/screens/reader.dart';
 import 'package:unpaprd/state/playerState.dart';
 
 class BookItem extends StatelessWidget {
@@ -19,10 +19,117 @@ class BookItem extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).requestFocus(FocusNode());
-        if (playerState.id != int.parse(audioData.id)) {
-          playerState.play(int.parse(audioData.id));
-        }
-        navigate();
+        showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            contentPadding: EdgeInsets.all(0),
+            content: Container(
+              height: 150,
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.white, width: 8),
+                borderRadius: BorderRadius.circular(2),
+                image: DecorationImage(
+                  fit: BoxFit.cover,
+                  image: CachedNetworkImageProvider(
+                    "https://unpaprdapi.gargakshit.now.sh/api/cover?name=${audioData.title}",
+                  ),
+                ),
+              ),
+              child: Stack(
+                children: <Widget>[
+                  Container(
+                    color: Colors.black45,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
+                      Expanded(
+                        child: InkWell(
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.of(ctx).pop();
+                              if (playerState.id != int.parse(audioData.id)) {
+                                playerState.play(int.parse(audioData.id));
+                              }
+                              navigate();
+                            },
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: <Widget>[
+                                Icon(
+                                  Icons.play_circle_outline,
+                                  size: 56.0,
+                                ),
+                                SizedBox(
+                                  height: 12.0,
+                                ),
+                                Text(
+                                  "Play",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      Container(
+                        height: 72,
+                        decoration: BoxDecoration(
+                          border: Border(
+                            left: BorderSide(
+                              width: 2,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: InkWell(
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.of(ctx).pop();
+
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (c) => ReaderPage(
+                                    name: audioData.title,
+                                  ),
+                                ),
+                              );
+                            },
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: <Widget>[
+                                Icon(
+                                  Icons.book,
+                                  size: 56.0,
+                                ),
+                                SizedBox(
+                                  height: 12.0,
+                                ),
+                                Text(
+                                  "Read",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
       },
       child: Padding(
         padding: const EdgeInsets.only(bottom: 26.0),
@@ -32,49 +139,35 @@ class BookItem extends StatelessWidget {
               children: <Widget>[
                 ClipRRect(
                   borderRadius: BorderRadius.circular(8.0),
-                  child: TransitionToImage(
+                  child: CachedNetworkImage(
+                    imageUrl:
+                        "https://unpaprdapi.gargakshit.now.sh/api/cover?name=${audioData.title}",
                     height: 70.0,
                     width: 70.0,
-                    image: AdvancedNetworkImage(
-                      "https://unpaprdapi.gargakshit.now.sh/api/cover?name=${audioData.title}",
-                      useDiskCache: true,
-                      loadFailedCallback: () {
-                        print("loading failed...");
-                      },
-                      cacheRule: CacheRule(
-                        maxAge: Duration(days: 30),
-                      ),
-                    ),
-                    placeholder: Container(
+                    placeholder: (context, url) => Container(
                       width: 70.0,
                       height: 70.0,
                       child: Center(
-                        child: Icon(Icons.close),
+                        child: CircularProgressIndicator(),
                       ),
                     ),
-                    loadingWidgetBuilder: (_, double progress, __) => Container(
+                    errorWidget: (context, url, error) => Container(
                       width: 70.0,
                       height: 70.0,
                       child: Center(
-                        child: progress == 0
-                            ? CircularProgressIndicator()
-                            : CircularProgressIndicator(
-                                value: progress,
-                              ),
+                        child: Icon(Icons.error),
                       ),
                     ),
                     fit: BoxFit.cover,
                   ),
                 ),
                 Container(
-                  height: 70.0,
                   width: 70.0,
-                  child: Icon(
-                    Icons.play_circle_filled,
-                    color: Colors.white.withOpacity(0.7),
-                    size: 28.0,
+                  height: 70.0,
+                  child: Center(
+                    child: Icon(Icons.play_circle_outline),
                   ),
-                )
+                ),
               ],
             ),
             SizedBox(width: 16.0),
