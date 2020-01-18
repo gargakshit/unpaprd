@@ -1,47 +1,60 @@
+import 'dart:async';
 import 'dart:io';
-import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import 'package:flutter_plugin_pdf_viewer/flutter_plugin_pdf_viewer.dart';
+import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart';
-import 'package:photo_view/photo_view.dart';
-import 'package:unpaprd/constants/colors.dart';
+import 'package:path_provider/path_provider.dart';
 
 class ReaderPage extends StatefulWidget {
   final String name;
+  final bool night;
 
-  ReaderPage({@required this.name});
+  ReaderPage({@required this.name, this.night = false});
 
   @override
   _ReaderPageState createState() => _ReaderPageState();
 }
 
 class _ReaderPageState extends State<ReaderPage> {
-  Future<PDFDocument> _getPdf() async {
+  final Completer<PDFViewController> _controller =
+      Completer<PDFViewController>();
+
+  Future<File> getFile() async {
     final url = await get(
         "https://unpaprdapi.gargakshit.now.sh/api/getEbook?q=${widget.name}");
 
     if (url.statusCode == 200) {
-      PDFDocument doc = await PDFDocument.fromURL(url.body);
-      return doc;
+      final raw = await get(url.body);
+
+      if (raw.statusCode == 200) {
+        final filename = "${widget.name}.pdf";
+        final bytes = raw.bodyBytes;
+
+        String dir = (await getApplicationDocumentsDirectory()).path;
+        File file = new File('$dir/$filename');
+        await file.writeAsBytes(bytes);
+        return file;
+      } else {
+        throw Exception("HTTP Error!!");
+      }
     } else {
       throw Exception("HTTP Error!");
     }
   }
 
-  int page = 1;
-
-  double opacity = 1;
+  int page = 0;
+  int total = 1;
 
   Color bgColor = Colors.black;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext gContext) {
     return Scaffold(
       backgroundColor: bgColor,
       body: SafeArea(
-        child: FutureBuilder<PDFDocument>(
-          future: _getPdf(),
+        child: FutureBuilder<File>(
+          future: getFile(),
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               return Column(
@@ -49,111 +62,92 @@ class _ReaderPageState extends State<ReaderPage> {
                   Container(
                     width: MediaQuery.of(context).size.width,
                     height: MediaQuery.of(context).size.height - 130,
-                    child: FutureBuilder<PDFPage>(
-                      future: snapshot.data.get(page: page),
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData) {
-                          return Center(
-                            child: ColorFiltered(
-                              colorFilter: ColorFilter.mode(
-                                Colors.black.withOpacity(opacity),
-                                BlendMode.dstATop,
-                              ),
-                              child: ClipRRect(
-                                child: PhotoView(
-                                  imageProvider: FileImage(
-                                    File(snapshot.data.imgPath),
-                                  ),
-                                  maxScale: 3.00,
-                                ),
-                              ),
-                            ),
-                          );
-                        }
-
-                        if (snapshot.hasError) {
-                          return Center(
-                            child: Padding(
-                              padding: EdgeInsets.only(
-                                left: 16,
-                                right: 16,
-                              ),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: <Widget>[
-                                  Text(
-                                    "Error Rendering Page",
-                                    style: GoogleFonts.montserrat(
-                                      textStyle: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 18.0,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                  Text(
-                                    "${snapshot.error}",
-                                    style: GoogleFonts.montserrat(
-                                      textStyle: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 14.0,
-                                      ),
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        }
-
-                        return Center(
-                          child: CircularProgressIndicator(),
-                        );
+                    child: PDFView(
+                      filePath: snapshot.data.path,
+                      enableSwipe: true,
+                      swipeHorizontal: true,
+                      nightMode: widget.night,
+                      onViewCreated: (PDFViewController pdfViewController) {
+                        _controller.complete(pdfViewController);
+                      },
+                      onPageChanged: (int p, int t) {
+                        setState(() {
+                          page = p;
+                          total = t;
+                        });
+                      },
+                      onError: (error) {
+                        print(error.toString());
+                      },
+                      onPageError: (page, error) {
+                        print('$page: ${error.toString()}');
                       },
                     ),
                   ),
                   Expanded(
                     child: Container(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: <Widget>[
-                          Expanded(
-                            child: IconButton(
-                              onPressed: page == 1
-                                  ? null
-                                  : () => setState(
-                                        () => page--,
-                                      ),
-                              icon: Icon(Icons.keyboard_arrow_left),
-                            ),
-                          ),
-                          Container(
-                            width: 120,
-                            child: Center(
-                              child: Text(
-                                "$page / ${snapshot.data.count}",
-                                style: TextStyle(
-                                  color: Colors.white,
+                        child: FutureBuilder<PDFViewController>(
+                      future: _controller.future,
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData) {
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: <Widget>[
+                              Expanded(
+                                child: IconButton(
+                                  onPressed: page == 0
+                                      ? null
+                                      : () async {
+                                          snapshot.data.setPage(page - 1);
+                                        },
+                                  icon: Icon(Icons.keyboard_arrow_left),
                                 ),
                               ),
-                            ),
-                          ),
-                          Expanded(
-                            child: IconButton(
-                              onPressed: page == (snapshot.data.count - 1)
-                                  ? null
-                                  : () => setState(
-                                        () => page++,
+                              FlatButton(
+                                onPressed: () {
+                                  if (Platform.isAndroid) {
+                                    Navigator.of(context).pop();
+
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (_) => ReaderPage(
+                                          name: widget.name,
+                                          night: !widget.night,
+                                        ),
                                       ),
-                              icon: Icon(Icons.keyboard_arrow_right),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                                    );
+                                  }
+                                },
+                                child: Container(
+                                  width: 120,
+                                  child: Center(
+                                    child: Text(
+                                      "${page + 1} / ${total + 1}",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                child: IconButton(
+                                  onPressed: page == total
+                                      ? null
+                                      : () {
+                                          snapshot.data.setPage(page + 1);
+                                        },
+                                  icon: Icon(Icons.keyboard_arrow_right),
+                                ),
+                              ),
+                            ],
+                          );
+                        }
+
+                        return Container();
+                      },
+                    )),
                   ),
                 ],
               );
@@ -170,7 +164,7 @@ class _ReaderPageState extends State<ReaderPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       Text(
-                        "Error Loading Book",
+                        "${snapshot.error}",
                         style: GoogleFonts.montserrat(
                           textStyle: TextStyle(
                             color: Colors.white,
@@ -181,7 +175,7 @@ class _ReaderPageState extends State<ReaderPage> {
                         textAlign: TextAlign.center,
                       ),
                       Text(
-                        "${snapshot.error}",
+                        "Error while downloading your book...",
                         style: GoogleFonts.montserrat(
                           textStyle: TextStyle(
                             color: Colors.black,
@@ -206,7 +200,7 @@ class _ReaderPageState extends State<ReaderPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
                     Text(
-                      "Please wait while we load the book for you",
+                      "Please wait while we download the book for you",
                       style: GoogleFonts.montserrat(
                         textStyle: TextStyle(
                           color: Colors.white,
