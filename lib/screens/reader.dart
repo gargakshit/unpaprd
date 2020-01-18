@@ -22,7 +22,7 @@ class _ReaderPageState extends State<ReaderPage> {
 
   Future<File> getFile() async {
     final url = await get(
-        "https://unpaprdapi.gargakshit.now.sh/api/getEbook?q=${widget.name}");
+        "https://unpaprdapi.gargakshit.now.sh/api/getEbook?q=${widget.name.replaceAll(new RegExp("version.*"), "")}");
 
     if (url.statusCode == 200) {
       final raw = await get(url.body);
@@ -164,22 +164,12 @@ class _ReaderPageState extends State<ReaderPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       Text(
-                        "${snapshot.error}",
+                        "Seems like an error...",
                         style: GoogleFonts.montserrat(
                           textStyle: TextStyle(
                             color: Colors.white,
                             fontSize: 18.0,
                             fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      Text(
-                        "Error while downloading your book...",
-                        style: GoogleFonts.montserrat(
-                          textStyle: TextStyle(
-                            color: Colors.black,
-                            fontSize: 14.0,
                           ),
                         ),
                         textAlign: TextAlign.center,
