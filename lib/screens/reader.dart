@@ -36,10 +36,18 @@ class _ReaderPageState extends State<ReaderPage> {
         await file.writeAsBytes(bytes);
         return file;
       } else {
-        throw Exception("HTTP Error!!");
+        if (url.statusCode == 404) {
+          throw Exception("The requested book is not available...");
+        } else {
+          throw Exception("HTTP Error!");
+        }
       }
     } else {
-      throw Exception("HTTP Error!");
+      if (url.statusCode == 404) {
+        throw Exception(url.body);
+      } else {
+        throw Exception("HTTP Error!");
+      }
     }
   }
 
@@ -164,7 +172,8 @@ class _ReaderPageState extends State<ReaderPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       Text(
-                        "Seems like an error...",
+                        "${snapshot.error.toString().replaceAll("Exception: ", "")}",
+                        maxLines: 2,
                         style: GoogleFonts.montserrat(
                           textStyle: TextStyle(
                             color: Colors.white,
