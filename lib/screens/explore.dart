@@ -39,7 +39,7 @@ class _ExplorePageState extends State<ExplorePage>
     controller = TabController(length: 7, vsync: this);
 
     feed =
-        fetchFeed("https://unpaprdapi.gargakshit.now.sh/api/feed", limit: 10);
+        fetchFeed("https://unpaprdapi.gargakshit.now.sh/api/feed", limit: 11);
     lifi = fetchFeed("https://unpaprdapi.gargakshit.now.sh/api/genres/lifi",
         limit: 10);
     romance = fetchFeed(

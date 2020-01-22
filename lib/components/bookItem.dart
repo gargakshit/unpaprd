@@ -1,6 +1,10 @@
+import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_icons/flutter_icons.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:objectdb/objectdb.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:unpaprd/models/audiobook_short.dart';
 import 'package:unpaprd/screens/reader.dart';
@@ -19,114 +23,180 @@ class BookItem extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).requestFocus(FocusNode());
-        showDialog(
+        showModalBottomSheet(
           context: context,
-          builder: (ctx) => AlertDialog(
-            contentPadding: EdgeInsets.all(0),
-            content: Container(
-              height: 150,
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.white, width: 8),
-                borderRadius: BorderRadius.circular(2),
-                image: DecorationImage(
-                  fit: BoxFit.cover,
-                  image: CachedNetworkImageProvider(
-                    "https://unpaprdapi.gargakshit.now.sh/api/cover?name=${audioData.title}",
+          builder: (ctx) => Container(
+            child: Wrap(
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12.0,
+                    vertical: 12.0,
                   ),
-                ),
-              ),
-              child: Stack(
-                children: <Widget>[
-                  Container(
-                    color: Colors.black45,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
+                  child: Row(
                     children: <Widget>[
-                      Expanded(
-                        child: InkWell(
-                          child: GestureDetector(
-                            onTap: () {
-                              Navigator.of(ctx).pop();
-                              if (playerState.id != int.parse(audioData.id)) {
-                                playerState.play(int.parse(audioData.id));
-                              }
-                              navigate();
-                            },
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: <Widget>[
-                                Icon(
-                                  Icons.play_circle_outline,
-                                  size: 56.0,
-                                ),
-                                SizedBox(
-                                  height: 12.0,
-                                ),
-                                Text(
-                                  "Play",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ],
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8.0),
+                        child: CachedNetworkImage(
+                          imageUrl:
+                              "https://unpaprdapi.gargakshit.now.sh/api/cover?name=${audioData.title.replaceAll(" ", "%20")}",
+                          height: 70.0,
+                          width: 70.0,
+                          placeholder: (context, url) => Container(
+                            width: 70.0,
+                            height: 70.0,
+                            child: Center(
+                              child: CircularProgressIndicator(),
                             ),
                           ),
+                          errorWidget: (context, url, error) => Container(
+                            width: 70.0,
+                            height: 70.0,
+                            child: Center(
+                              child: Icon(Icons.error),
+                            ),
+                          ),
+                          fit: BoxFit.cover,
                         ),
                       ),
+                      SizedBox(width: 16.0),
                       Container(
-                        height: 72,
-                        decoration: BoxDecoration(
-                          border: Border(
-                            left: BorderSide(
-                              width: 2,
+                        width: MediaQuery.of(context).size.width - 128,
+                        child: Text(
+                          audioData.title,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 2,
+                          style: GoogleFonts.montserrat(
+                            textStyle: TextStyle(
                               color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 17.0,
                             ),
                           ),
                         ),
                       ),
-                      Expanded(
-                        child: InkWell(
-                          child: GestureDetector(
-                            onTap: () {
-                              Navigator.of(ctx).pop();
-
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (c) => ReaderPage(
-                                    name: audioData.title,
-                                  ),
-                                ),
-                              );
-                            },
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: <Widget>[
-                                Icon(
-                                  Icons.book,
-                                  size: 56.0,
-                                ),
-                                SizedBox(
-                                  height: 12.0,
-                                ),
-                                Text(
-                                  "Read",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
+                      Spacer(),
                     ],
                   ),
-                ],
-              ),
+                ),
+                ListTile(
+                  leading: Icon(Feather.download),
+                  title: Text(
+                    "Download",
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                  onTap: () async {
+                    Directory docDirector =
+                        await getApplicationDocumentsDirectory();
+                    final db = ObjectDB(docDirector.path + "/download_00.db");
+                    await db.open();
+
+                    if ((await db.find({"book.id": audioData.id})).length > 0) {
+                      Scaffold.of(context).showSnackBar(SnackBar(
+                        content: Text("Download already Queued!"),
+                      ));
+                    } else {
+                      await db.insert({
+                        "book": {
+                          "id": audioData.id,
+                          "cover":
+                              "https://unpaprdapi.gargakshit.now.sh/api/cover?name=${audioData.title.replaceAll(" ", "%20")}",
+                          "title": audioData.title,
+                          "numSections": audioData.numSections,
+                        },
+                        "progress": {
+                          "status": "Pending",
+                          "section": "1",
+                          "progress": 0,
+                        }
+                      });
+
+                      Scaffold.of(context).showSnackBar(SnackBar(
+                        content: Text("Download Queued!"),
+                      ));
+                    }
+
+                    await db.tidy();
+
+                    Navigator.of(ctx).pop();
+                    await db.close();
+                  },
+                ),
+                ListTile(
+                  leading: Icon(Feather.play),
+                  title: Text(
+                    "Stream",
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                  onTap: () {
+                    Navigator.of(ctx).pop();
+
+                    if (playerState.id != int.parse(audioData.id)) {
+                      playerState.play(int.parse(audioData.id));
+                    }
+                    navigate();
+                  },
+                ),
+                ListTile(
+                  leading: Icon(Feather.book),
+                  title: Text(
+                    "Read (Experimental)",
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                  onTap: () {
+                    Navigator.of(ctx).pop();
+
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => ReaderPage(
+                          name: audioData.title,
+                          night: false,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                ListTile(
+                  leading: Icon(Feather.save),
+                  title: Text(
+                    "Save for later",
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                  onTap: () {
+                    Navigator.of(ctx).pop();
+
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => ReaderPage(
+                          name: audioData.title,
+                          night: false,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                ListTile(
+                  leading: Icon(Feather.x),
+                  title: Text(
+                    "Cancel",
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                  onTap: () => Navigator.of(ctx).pop(),
+                ),
+                SizedBox(
+                  height: Platform.isIOS ? 72 : 0,
+                ),
+              ],
             ),
           ),
         );
@@ -135,40 +205,29 @@ class BookItem extends StatelessWidget {
         padding: const EdgeInsets.only(bottom: 26.0),
         child: Row(
           children: <Widget>[
-            Stack(
-              children: <Widget>[
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8.0),
-                  child: CachedNetworkImage(
-                    imageUrl:
-                        "https://unpaprdapi.gargakshit.now.sh/api/cover?name=${audioData.title}",
-                    height: 70.0,
-                    width: 70.0,
-                    placeholder: (context, url) => Container(
-                      width: 70.0,
-                      height: 70.0,
-                      child: Center(
-                        child: CircularProgressIndicator(),
-                      ),
-                    ),
-                    errorWidget: (context, url, error) => Container(
-                      width: 70.0,
-                      height: 70.0,
-                      child: Center(
-                        child: Icon(Icons.error),
-                      ),
-                    ),
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                Container(
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8.0),
+              child: CachedNetworkImage(
+                imageUrl:
+                    "https://unpaprdapi.gargakshit.now.sh/api/cover?name=${audioData.title.replaceAll(" ", "%20")}",
+                height: 70.0,
+                width: 70.0,
+                placeholder: (context, url) => Container(
                   width: 70.0,
                   height: 70.0,
                   child: Center(
-                    child: Icon(Icons.play_circle_outline),
+                    child: CircularProgressIndicator(),
                   ),
                 ),
-              ],
+                errorWidget: (context, url, error) => Container(
+                  width: 70.0,
+                  height: 70.0,
+                  child: Center(
+                    child: Icon(Icons.error),
+                  ),
+                ),
+                fit: BoxFit.cover,
+              ),
             ),
             SizedBox(width: 16.0),
             Column(

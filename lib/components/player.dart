@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_icons/flutter_icons.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:unpaprd/models/audio.dart';
@@ -159,7 +160,7 @@ class _PlayerCompomemtState extends State<PlayerCompomemt> {
                           borderRadius: BorderRadius.circular(10.0),
                           child: CachedNetworkImage(
                             imageUrl:
-                                "https://unpaprdapi.gargakshit.now.sh/api/cover?name=${widget.book.title}",
+                                "https://unpaprdapi.gargakshit.now.sh/api/cover?name=${widget.book.title.replaceAll(" ", "%20")}",
                             height: orientation == Orientation.landscape
                                 ? 140
                                 : 200,
@@ -169,7 +170,7 @@ class _PlayerCompomemtState extends State<PlayerCompomemt> {
                             placeholder: (context, url) =>
                                 CircularProgressIndicator(),
                             errorWidget: (context, url, error) =>
-                                Icon(Icons.error),
+                                Icon(Feather.x),
                             fit: BoxFit.cover,
                           ),
                         ),

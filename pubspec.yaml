@@ -13,7 +13,6 @@ dependencies:
   audioplayers: 0.13.2
   http:
   google_fonts:
-  transparent_image:
   cached_network_image:
   mobx:
   flutter_mobx:
@@ -22,6 +21,8 @@ dependencies:
   shared_preferences:
   flutter_pdfview:
   path_provider:
+  flutter_icons:
+  objectdb:
 
 dev_dependencies:
   flutter_test:

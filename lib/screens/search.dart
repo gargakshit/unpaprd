@@ -26,6 +26,7 @@ class _SearchPageState extends State<SearchPage> {
     super.initState();
 
     _controller = TextEditingController();
+
     _controller.addListener(() {
       setState(() {
         searchText = _controller.text;
@@ -49,7 +50,7 @@ class _SearchPageState extends State<SearchPage> {
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 16.0),
-          child: ListView(
+          child: Column(
             children: <Widget>[
               SizedBox(
                 height: 16.0,
@@ -75,7 +76,7 @@ class _SearchPageState extends State<SearchPage> {
                       child: TextField(
                         autofocus: false,
                         controller: _controller,
-                        cursorColor: pink,
+                        cursorColor: accentColor,
                         decoration: InputDecoration(
                           hintText:
                               "Try \"${searchPlaceHolders[Random().nextInt(searchPlaceHolders.length)]}\"",
@@ -113,45 +114,58 @@ class _SearchPageState extends State<SearchPage> {
               SizedBox(
                 height: 16.0,
               ),
-              searchText.isNotEmpty
-                  ? FutureBuilder<AudiobookShortList>(
-                      future: search,
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData) {
-                          return Column(
-                            children: List.generate(
-                              snapshot.data.books.length,
-                              (i) {
-                                return BookItem(
-                                  audioData: snapshot.data.books[i],
-                                  navigate: widget.navigate,
-                                );
-                              },
-                            ),
+              Expanded(
+                child: searchText.isNotEmpty
+                    ? FutureBuilder<AudiobookShortList>(
+                        future: search,
+                        builder: (context, snapshot) {
+                          if (snapshot.hasData) {
+                            if (snapshot.data.books.length == 0) {
+                              return Text(
+                                "No results found",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16.0,
+                                ),
+                                textAlign: TextAlign.center,
+                              );
+                            } else {
+                              return ListView(
+                                children: List.generate(
+                                  snapshot.data.books.length,
+                                  (i) {
+                                    return BookItem(
+                                      audioData: snapshot.data.books[i],
+                                      navigate: widget.navigate,
+                                    );
+                                  },
+                                ),
+                              );
+                            }
+                          } else if (snapshot.hasError) {
+                            return Text(
+                              "No results found",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16.0,
+                              ),
+                              textAlign: TextAlign.center,
+                            );
+                          }
+                          return Center(
+                            child: CircularProgressIndicator(),
                           );
-                        } else if (snapshot.hasError) {
-                          return Text(
-                            "No results found",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16.0,
-                            ),
-                            textAlign: TextAlign.center,
-                          );
-                        }
-                        return Center(
-                          child: CircularProgressIndicator(),
-                        );
-                      },
-                    )
-                  : Text(
-                      "Please search for something...",
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 16.0,
+                        },
+                      )
+                    : Text(
+                        "Please search for something...",
+                        style: TextStyle(
+                          color: Colors.white70,
+                          fontSize: 16.0,
+                        ),
+                        textAlign: TextAlign.center,
                       ),
-                      textAlign: TextAlign.center,
-                    ),
+              ),
             ],
           ),
         ),

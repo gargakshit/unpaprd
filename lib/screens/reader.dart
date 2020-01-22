@@ -25,6 +25,7 @@ class _ReaderPageState extends State<ReaderPage> {
         "https://unpaprdapi.gargakshit.now.sh/api/getEbook?q=${widget.name.replaceAll(new RegExp("version.*"), "")}");
 
     if (url.statusCode == 200) {
+      print(url.body);
       final raw = await get(url.body);
 
       if (raw.statusCode == 200) {

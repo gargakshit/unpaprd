@@ -2,13 +2,11 @@ import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:unpaprd/constants/colors.dart';
 import 'package:unpaprd/screens/home.dart';
 import 'package:unpaprd/state/playerState.dart';
 
 void main() => runApp(MyApp());
-
-var blueColor = Color(0xFF090e42);
-var pinkColor = Color(0xFFff6b80);
 
 class MyApp extends StatelessWidget {
   @override
@@ -19,13 +17,13 @@ class MyApp extends StatelessWidget {
         title: 'Flutter Demo',
         theme: ThemeData(
           brightness: Brightness.dark,
-          backgroundColor: blueColor,
-          canvasColor: blueColor,
-          cursorColor: pinkColor,
+          backgroundColor: bgColor,
+          canvasColor: bgColor,
+          cursorColor: accentColor,
           textTheme: GoogleFonts.montserratTextTheme(
             Theme.of(context).textTheme,
           ),
-          accentColor: pinkColor,
+          accentColor: accentColor,
         ),
         debugShowCheckedModeBanner: false,
         home: FutureBuilder<ConnectivityResult>(
