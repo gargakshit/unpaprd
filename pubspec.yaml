@@ -1,6 +1,6 @@
 name: unpaprd
 description: An open source audiobook player.
-version: 2.1.2+8
+version: 2.2.0+9
 
 environment:
   sdk: ">=2.1.0 <3.0.0"
