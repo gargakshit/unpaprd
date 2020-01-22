@@ -22,6 +22,8 @@ dependencies:
   shared_preferences:
   flutter_pdfview:
   path_provider:
+  flutter_icons:
+  package_info:
 
 dev_dependencies:
   flutter_test:

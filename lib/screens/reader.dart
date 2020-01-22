@@ -43,11 +43,7 @@ class _ReaderPageState extends State<ReaderPage> {
         }
       }
     } else {
-      if (url.statusCode == 404) {
-        throw Exception(url.body);
-      } else {
-        throw Exception("HTTP Error!");
-      }
+      throw Exception("The requested book is not available!");
     }
   }
 

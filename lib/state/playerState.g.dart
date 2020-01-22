@@ -26,6 +26,23 @@ mixin _$PlayerStore on _PlayerStore, Store {
     }, _$idAtom, name: '${_$idAtom.name}_set');
   }
 
+  final _$idxAtom = Atom(name: '_PlayerStore.idx');
+
+  @override
+  int get idx {
+    _$idxAtom.context.enforceReadPolicy(_$idxAtom);
+    _$idxAtom.reportObserved();
+    return super.idx;
+  }
+
+  @override
+  set idx(int value) {
+    _$idxAtom.context.conditionallyRunInAction(() {
+      super.idx = value;
+      _$idxAtom.reportChanged();
+    }, _$idxAtom, name: '${_$idxAtom.name}_set');
+  }
+
   final _$bookAtom = Atom(name: '_PlayerStore.book');
 
   @override
@@ -60,10 +77,63 @@ mixin _$PlayerStore on _PlayerStore, Store {
     }, _$loadingAtom, name: '${_$loadingAtom.name}_set');
   }
 
+  final _$bgColorAtom = Atom(name: '_PlayerStore.bgColor');
+
+  @override
+  Color get bgColor {
+    _$bgColorAtom.context.enforceReadPolicy(_$bgColorAtom);
+    _$bgColorAtom.reportObserved();
+    return super.bgColor;
+  }
+
+  @override
+  set bgColor(Color value) {
+    _$bgColorAtom.context.conditionallyRunInAction(() {
+      super.bgColor = value;
+      _$bgColorAtom.reportChanged();
+    }, _$bgColorAtom, name: '${_$bgColorAtom.name}_set');
+  }
+
+  final _$accentColorAtom = Atom(name: '_PlayerStore.accentColor');
+
+  @override
+  Color get accentColor {
+    _$accentColorAtom.context.enforceReadPolicy(_$accentColorAtom);
+    _$accentColorAtom.reportObserved();
+    return super.accentColor;
+  }
+
+  @override
+  set accentColor(Color value) {
+    _$accentColorAtom.context.conditionallyRunInAction(() {
+      super.accentColor = value;
+      _$accentColorAtom.reportChanged();
+    }, _$accentColorAtom, name: '${_$accentColorAtom.name}_set');
+  }
+
+  final _$persistColorsAsyncAction = AsyncAction('persistColors');
+
+  @override
+  Future<void> persistColors() {
+    return _$persistColorsAsyncAction.run(() => super.persistColors());
+  }
+
   final _$playAsyncAction = AsyncAction('play');
 
   @override
   Future<void> play(int i) {
     return _$playAsyncAction.run(() => super.play(i));
+  }
+
+  final _$_PlayerStoreActionController = ActionController(name: '_PlayerStore');
+
+  @override
+  void loadColors() {
+    final _$actionInfo = _$_PlayerStoreActionController.startAction();
+    try {
+      return super.loadColors();
+    } finally {
+      _$_PlayerStoreActionController.endAction(_$actionInfo);
+    }
   }
 }
