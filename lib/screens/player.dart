@@ -90,6 +90,7 @@ class _PlayerPageState extends State<PlayerPage> {
 
           return PlayerCompomemt(
             book: playerState.book,
+            globalContext: context,
           );
         },
       ),

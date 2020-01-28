@@ -13,6 +13,7 @@ class App extends StatelessWidget {
     final state = Provider.of<PlayerStore>(context);
 
     state.loadColors();
+    state.loadSeekTime();
 
     return Observer(
       builder: (_) => MaterialApp(

@@ -111,6 +111,23 @@ mixin _$PlayerStore on _PlayerStore, Store {
     }, _$accentColorAtom, name: '${_$accentColorAtom.name}_set');
   }
 
+  final _$seekTimeAtom = Atom(name: '_PlayerStore.seekTime');
+
+  @override
+  int get seekTime {
+    _$seekTimeAtom.context.enforceReadPolicy(_$seekTimeAtom);
+    _$seekTimeAtom.reportObserved();
+    return super.seekTime;
+  }
+
+  @override
+  set seekTime(int value) {
+    _$seekTimeAtom.context.conditionallyRunInAction(() {
+      super.seekTime = value;
+      _$seekTimeAtom.reportChanged();
+    }, _$seekTimeAtom, name: '${_$seekTimeAtom.name}_set');
+  }
+
   final _$persistColorsAsyncAction = AsyncAction('persistColors');
 
   @override
@@ -125,6 +142,13 @@ mixin _$PlayerStore on _PlayerStore, Store {
     return _$playAsyncAction.run(() => super.play(i));
   }
 
+  final _$persistSeekTimeAsyncAction = AsyncAction('persistSeekTime');
+
+  @override
+  Future<void> persistSeekTime() {
+    return _$persistSeekTimeAsyncAction.run(() => super.persistSeekTime());
+  }
+
   final _$_PlayerStoreActionController = ActionController(name: '_PlayerStore');
 
   @override
@@ -132,6 +156,16 @@ mixin _$PlayerStore on _PlayerStore, Store {
     final _$actionInfo = _$_PlayerStoreActionController.startAction();
     try {
       return super.loadColors();
+    } finally {
+      _$_PlayerStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void loadSeekTime() {
+    final _$actionInfo = _$_PlayerStoreActionController.startAction();
+    try {
+      return super.loadSeekTime();
     } finally {
       _$_PlayerStoreActionController.endAction(_$actionInfo);
     }

@@ -28,6 +28,9 @@ abstract class _PlayerStore with Store {
   @observable
   Color accentColor = Color(0xFFff6b80);
 
+  @observable
+  int seekTime = 5;
+
   @action
   Future<void> persistColors() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -62,5 +65,19 @@ abstract class _PlayerStore with Store {
     loading = true;
     book = await fetchBook(i);
     loading = false;
+  }
+
+  @action
+  Future<void> persistSeekTime() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    await prefs.setInt("seekTime", seekTime);
+  }
+
+  @action
+  void loadSeekTime() {
+    SharedPreferences.getInstance().then((prefs) {
+      seekTime = prefs.getInt("seekTime") ?? 5;
+    });
   }
 }
