@@ -24,6 +24,8 @@ dependencies:
   path_provider:
   flutter_icons:
   package_info:
+  sentry:
+  objectdb:
 
 dev_dependencies:
   flutter_test:

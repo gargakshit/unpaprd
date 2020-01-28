@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:unpaprd/api/feed.dart';
-import 'package:unpaprd/components/bookItem.dart';
-import 'package:unpaprd/models/feed.dart';
+import 'package:unpaprd/components/exploreList.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class ExplorePage extends StatefulWidget {
@@ -14,16 +12,11 @@ class ExplorePage extends StatefulWidget {
 }
 
 class _ExplorePageState extends State<ExplorePage>
-    with SingleTickerProviderStateMixin {
-  Future<AudiobookShortList> feed;
-  Future<AudiobookShortList> lifi;
-  Future<AudiobookShortList> romance;
-  Future<AudiobookShortList> plays;
-  Future<AudiobookShortList> scifi;
-  Future<AudiobookShortList> poetry;
-  Future<AudiobookShortList> satire;
-
+    with SingleTickerProviderStateMixin, AutomaticKeepAliveClientMixin {
   TabController controller;
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void dispose() {
@@ -37,26 +30,12 @@ class _ExplorePageState extends State<ExplorePage>
     super.initState();
 
     controller = TabController(length: 7, vsync: this);
-
-    feed =
-        fetchFeed("https://unpaprdapi.gargakshit.now.sh/api/feed", limit: 10);
-    lifi = fetchFeed("https://unpaprdapi.gargakshit.now.sh/api/genres/lifi",
-        limit: 10);
-    romance = fetchFeed(
-        "https://unpaprdapi.gargakshit.now.sh/api/genres/romance",
-        limit: 10);
-    plays = fetchFeed("https://unpaprdapi.gargakshit.now.sh/api/genres/plays",
-        limit: 10);
-    scifi = fetchFeed("https://unpaprdapi.gargakshit.now.sh/api/genres/scifi",
-        limit: 10);
-    poetry = fetchFeed("https://unpaprdapi.gargakshit.now.sh/api/genres/poetry",
-        limit: 10);
-    satire = fetchFeed("https://unpaprdapi.gargakshit.now.sh/api/genres/satire",
-        limit: 10);
   }
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -110,222 +89,39 @@ class _ExplorePageState extends State<ExplorePage>
                   child: TabBarView(
                     controller: controller,
                     children: <Widget>[
-                      FutureBuilder<AudiobookShortList>(
-                        future: feed,
-                        builder: (context, snapshot) {
-                          if (snapshot.hasData) {
-                            return ListView(
-                              children: List.generate(
-                                snapshot.data.books.length,
-                                (i) {
-                                  return BookItem(
-                                    audioData: snapshot.data.books[i],
-                                    navigate: widget.navigate,
-                                  );
-                                },
-                              ),
-                            );
-                          } else if (snapshot.hasError) {
-                            return Center(
-                              child: Text(
-                                "Error fetching data, please refresh",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16.0,
-                                ),
-                              ),
-                            );
-                          }
-                          return Center(
-                            child: CircularProgressIndicator(),
-                          );
-                        },
+                      ExploreList(
+                        url: "https://unpaprdapi.gargakshit.now.sh/api/feed",
+                        navigate: widget.navigate,
                       ),
-                      FutureBuilder<AudiobookShortList>(
-                        future: lifi,
-                        builder: (context, snapshot) {
-                          if (snapshot.hasData) {
-                            return ListView(
-                              children: List.generate(
-                                snapshot.data.books.length,
-                                (i) {
-                                  return BookItem(
-                                    audioData: snapshot.data.books[i],
-                                    navigate: widget.navigate,
-                                  );
-                                },
-                              ),
-                            );
-                          } else if (snapshot.hasError) {
-                            return Center(
-                              child: Text(
-                                "Error fetching data, please refresh",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16.0,
-                                ),
-                              ),
-                            );
-                          }
-                          return Center(
-                            child: CircularProgressIndicator(),
-                          );
-                        },
+                      ExploreList(
+                        url:
+                            "https://unpaprdapi.gargakshit.now.sh/api/genres/lifi",
+                        navigate: widget.navigate,
                       ),
-                      FutureBuilder<AudiobookShortList>(
-                        future: romance,
-                        builder: (context, snapshot) {
-                          if (snapshot.hasData) {
-                            return ListView(
-                              children: List.generate(
-                                snapshot.data.books.length,
-                                (i) {
-                                  return BookItem(
-                                    audioData: snapshot.data.books[i],
-                                    navigate: widget.navigate,
-                                  );
-                                },
-                              ),
-                            );
-                          } else if (snapshot.hasError) {
-                            return Center(
-                              child: Text(
-                                "Error fetching data, please refresh",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16.0,
-                                ),
-                              ),
-                            );
-                          }
-                          return Center(
-                            child: CircularProgressIndicator(),
-                          );
-                        },
+                      ExploreList(
+                        url:
+                            "https://unpaprdapi.gargakshit.now.sh/api/genres/romance",
+                        navigate: widget.navigate,
                       ),
-                      FutureBuilder<AudiobookShortList>(
-                        future: plays,
-                        builder: (context, snapshot) {
-                          if (snapshot.hasData) {
-                            return ListView(
-                              children: List.generate(
-                                snapshot.data.books.length,
-                                (i) {
-                                  return BookItem(
-                                    audioData: snapshot.data.books[i],
-                                    navigate: widget.navigate,
-                                  );
-                                },
-                              ),
-                            );
-                          } else if (snapshot.hasError) {
-                            return Center(
-                              child: Text(
-                                "Error fetching data, please refresh",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16.0,
-                                ),
-                              ),
-                            );
-                          }
-                          return Center(
-                            child: CircularProgressIndicator(),
-                          );
-                        },
+                      ExploreList(
+                        url:
+                            "https://unpaprdapi.gargakshit.now.sh/api/genres/plays",
+                        navigate: widget.navigate,
                       ),
-                      FutureBuilder<AudiobookShortList>(
-                        future: scifi,
-                        builder: (context, snapshot) {
-                          if (snapshot.hasData) {
-                            return ListView(
-                              children: List.generate(
-                                snapshot.data.books.length,
-                                (i) {
-                                  return BookItem(
-                                    audioData: snapshot.data.books[i],
-                                    navigate: widget.navigate,
-                                  );
-                                },
-                              ),
-                            );
-                          } else if (snapshot.hasError) {
-                            return Center(
-                              child: Text(
-                                "Error fetching data, please refresh",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16.0,
-                                ),
-                              ),
-                            );
-                          }
-                          return Center(
-                            child: CircularProgressIndicator(),
-                          );
-                        },
+                      ExploreList(
+                        url:
+                            "https://unpaprdapi.gargakshit.now.sh/api/genres/scifi",
+                        navigate: widget.navigate,
                       ),
-                      FutureBuilder<AudiobookShortList>(
-                        future: poetry,
-                        builder: (context, snapshot) {
-                          if (snapshot.hasData) {
-                            return ListView(
-                              children: List.generate(
-                                snapshot.data.books.length,
-                                (i) {
-                                  return BookItem(
-                                    audioData: snapshot.data.books[i],
-                                    navigate: widget.navigate,
-                                  );
-                                },
-                              ),
-                            );
-                          } else if (snapshot.hasError) {
-                            return Center(
-                              child: Text(
-                                "Error fetching data, please refresh",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16.0,
-                                ),
-                              ),
-                            );
-                          }
-                          return Center(
-                            child: CircularProgressIndicator(),
-                          );
-                        },
+                      ExploreList(
+                        url:
+                            "https://unpaprdapi.gargakshit.now.sh/api/genres/poetry",
+                        navigate: widget.navigate,
                       ),
-                      FutureBuilder<AudiobookShortList>(
-                        future: satire,
-                        builder: (context, snapshot) {
-                          if (snapshot.hasData) {
-                            return ListView(
-                              children: List.generate(
-                                snapshot.data.books.length,
-                                (i) {
-                                  return BookItem(
-                                    audioData: snapshot.data.books[i],
-                                    navigate: widget.navigate,
-                                  );
-                                },
-                              ),
-                            );
-                          } else if (snapshot.hasError) {
-                            return Center(
-                              child: Text(
-                                "Error fetching data, please refresh",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16.0,
-                                ),
-                              ),
-                            );
-                          }
-                          return Center(
-                            child: CircularProgressIndicator(),
-                          );
-                        },
+                      ExploreList(
+                        url:
+                            "https://unpaprdapi.gargakshit.now.sh/api/genres/satire",
+                        navigate: widget.navigate,
                       ),
                     ],
                   ),

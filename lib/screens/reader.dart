@@ -20,9 +20,18 @@ class _ReaderPageState extends State<ReaderPage> {
   final Completer<PDFViewController> _controller =
       Completer<PDFViewController>();
 
+  String bookName;
+
+  @override
+  void initState() {
+    super.initState();
+
+    bookName = widget.name.replaceAll(new RegExp("version.*"), "");
+  }
+
   Future<File> getFile() async {
     final url = await get(
-        "https://unpaprdapi.gargakshit.now.sh/api/getEbook?q=${widget.name.replaceAll(new RegExp("version.*"), "")}");
+        "https://unpaprdapi.gargakshit.now.sh/api/getEbook?q=${bookName}");
 
     if (url.statusCode == 200) {
       final raw = await get(url.body);
