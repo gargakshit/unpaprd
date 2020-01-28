@@ -1,3 +1,7 @@
+<img src="https://raw.githubusercontent.com/gargakshit/unpaprd/master/screenshots/dev_banner.png" />
+
+---
+
 # unpaprd
 
 A cross platform audiobook streamer / downloader + E-Book reader made in flutter.
