@@ -7,6 +7,7 @@
 A cross platform audiobook streamer / downloader + E-Book reader made in flutter.
 
 **Note:** This project is stalled for now
+**Note:** The server is down for now as-well
 
 ## Download the
 
